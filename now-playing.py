@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # stdlib dependencies
-import sys, os
+import sys, os, json
 
 # External dependencies
 import pynotify
@@ -13,6 +13,10 @@ class Hooks:
     def setNowPlaying(this, args):
         with open(NOWPLAYING_FILE, "w") as f:
             f.write(NOWPLAYING_FORMAT.format(**args))
+
+        with open(NOWPLAYING_FILE + ".json", "w") as f:
+            json.dump(args, f)
+
     def sendNotification(this, args):
         # Test if the status change is of a pause. If so, don't send a
         # notification.
