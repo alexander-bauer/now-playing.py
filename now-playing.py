@@ -30,10 +30,19 @@ class Hooks:
         if not pynotify.init("Now Playing"):
             return
 
+        # Check if an album art URI has been provided, and if so,
+        # supply it.
+        uri = ""
+        if "art" in args:
+            uri = args["art"]
+            if not "://" in uri:
+                uri = "file://" + uri
+
         # Create the notification object, if applicable, and set the
         # priority to low.
         n = pynotify.Notification(args["title"],
-                                  args["artist"])
+                                  args["artist"],
+                                  uri)
         n.set_urgency(pynotify.URGENCY_LOW)
         n.set_timeout(2000) # milliseconds
 
