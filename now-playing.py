@@ -3,8 +3,8 @@
 # stdlib dependencies
 import sys, os, json
 
-# External dependencies
-import pynotify
+# Get the utility for importing plugins.
+import enabled as plugins
 
 NOWPLAYING_FILE = os.path.expandvars("$HOME/.nowplaying")
 NOWPLAYING_FORMAT = "{title} - {artist}"
@@ -17,38 +17,6 @@ class Hooks:
         with open(NOWPLAYING_FILE + ".json", "w") as f:
             json.dump(args, f)
 
-    def sendNotification(this, args):
-        # Test if the status change is of a pause. If so, don't send a
-        # notification.
-        try:
-            if args["status"] == "paused":
-                return
-        except KeyError:
-            pass
-
-        # Try to initialize the notification. If it fails, return.
-        if not pynotify.init("Now Playing"):
-            return
-
-        # Check if an album art URI has been provided, and if so,
-        # supply it.
-        uri = ""
-        if "art" in args:
-            uri = args["art"]
-            if not "://" in uri:
-                uri = "file://" + uri
-
-        # Create the notification object, if applicable, and set the
-        # priority to low.
-        n = pynotify.Notification(args["title"],
-                                  args["artist"],
-                                  uri)
-        n.set_urgency(pynotify.URGENCY_LOW)
-        n.set_timeout(2000) # milliseconds
-
-        # Show the object. If it fails, fail silently.
-        n.show()
-    
     def runAll(this, args):
         for hook in this.registered:
             hook(args)
@@ -59,11 +27,10 @@ class Hooks:
         this.registered.append(this.sendNotification)
 
 def main():
-    args = dict(zip(sys.argv[1::2], sys.argv[2::2]))
+    songinfo = dict(zip(sys.argv[1::2], sys.argv[2::2]))
     
-    # Set up a object containing the hooks.
-    h = Hooks()
-    h.runAll(args)
+    # Run all of the plugins with the songinfo.
+    plugins.execute(**songinfo)
 
 if __name__ == "__main__":
     sys.exit(main())
