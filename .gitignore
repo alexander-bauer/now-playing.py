@@ -1,3 +1,7 @@
+# Editor backup and temporary files
+*~
+*#*
+
 # Created by http://www.gitignore.io
 
 ### Python ###
